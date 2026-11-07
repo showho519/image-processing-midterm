@@ -287,13 +287,18 @@ if uploaded_file is not None:
                 with st.spinner("首次執行正在下載 Haar 人臉模型權重檔..."):
                     urllib.request.urlretrieve(url, cascade_path)
 
-        # 2. 載入分類器
-        face_cascade = cv2.CascadeClassifier(cascade_path)
-        if face_cascade.empty():
+        # 2. 載入分類器（容錯命名空間寫法）
+        CascadeClass = getattr(cv2, "CascadeClassifier", None)
+        if CascadeClass is None and hasattr(cv2, "objdetect"):
+            CascadeClass = getattr(cv2.objdetect, "CascadeClassifier", None)
+
+        if CascadeClass is None:
             st.error(
-                "無法正確載入 Haar-Cascade 權重檔案，請確認網路連線或手動下載 XML。"
+                "目前環境的 OpenCV 缺少 CascadeClassifier 物件，請於 requirements.txt 鎖定 opencv-python-headless==4.9.0.80 並重啟。"
             )
             st.stop()
+
+        face_cascade = CascadeClass(cascade_path)
 
         # 3. 執行人臉偵測 (detectMultiScale3 取得邊界框與信心權重)
         faces, rejectLevels, levelWeights = face_cascade.detectMultiScale3(
