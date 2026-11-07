@@ -2,7 +2,6 @@ import io
 import math
 import cv2
 import matplotlib.pyplot as plt
-import mediapipe as mp
 import numpy as np
 import streamlit as st
 from PIL import Image
